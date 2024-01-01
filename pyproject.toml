@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "asyncio-state-pattern"
+version = "0.1.0"
+description = ""
+authors = ["grhmdev <grhmdev@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.8"
+
+[tool.poetry.group.dev.dependencies]
+ruff = "^0.1.9"
+pytest = "^7.4.3"
+pytest-asyncio = "^0.23.2"
+poethepoet = "^0.24.4"
+coverage = "^7.4.0"
+
+[tool.poe.tasks]
+test = "coverage run --branch -m pytest"
+report = "coverage report"
+format = "ruff "
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

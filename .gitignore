@@ -1,0 +1,8 @@
+# Files
+.coverage
+poetry.lock
+
+# Dirs
+.venv/
+.vscode/
+__pycache__/

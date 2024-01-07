@@ -6,7 +6,7 @@ from inspect import isclass
 
 from .state import State
 from .logger import logger
-from .types import StateInstanceOrType
+from .types import StateInstanceOrClass
 from .constants import initial_state_attr
 
 
@@ -17,7 +17,7 @@ class StateMachineError(Exception):
 class StateMachine:
     def __init__(
         self,
-        states=List[StateInstanceOrType],
+        states=List[StateInstanceOrClass],
         logger: Logger = logger,
         max_event_queue_size: int = 0,
     ):
@@ -204,7 +204,7 @@ def _get_state_hierarchy(cls: Type[State]) -> List[Type[State]]:
     return hierarchy
 
 
-def name_of(state: StateInstanceOrType) -> str:
+def name_of(state: StateInstanceOrClass) -> str:
     if isinstance(state, State):
         return state.name
     else:

@@ -2,7 +2,7 @@ from logging import Logger
 from typing import Generic, TypeVar
 
 from .logger import logger
-from .constants import entry_action_attr, exit_action_attr, event_action_attr
+from .constants import entry_action_attr, exit_action_attr, event_action_attr, initial_state_attr
 
 T = TypeVar("T")
 
@@ -34,6 +34,10 @@ class State(Generic[T]):
                 self._event_actions_by_id[event_id] = [item]
             else:
                 self._event_actions_by_id[event_id].append(item)
+
+    def __init_subclass__(cls, initial: bool = False) -> None:
+        if initial:
+            setattr(cls, initial_state_attr, True)
 
     @property
     def context(self) -> T:

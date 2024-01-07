@@ -6,14 +6,13 @@ from asyncio_state_pattern import (
     on_entry,
     on_exit,
     on_event,
-    initial_state,
 )
 
 
 class CoffeeMaker(StateMachine):
     def __init__(self):
         super().__init__(
-            states=[initial_state(PoweredOff), PoweredOn, Idle, DispensingCoffee]
+            states=[PoweredOff, PoweredOn, Idle, DispensingCoffee]
         )
 
     async def make_coffee(self, type):
@@ -26,7 +25,7 @@ class CoffeeMaker(StateMachine):
         return await self.state.power_off()
 
 
-class PoweredOff(State):
+class PoweredOff(State, initial=True):
     async def make_coffee(type):
         return False
 
@@ -65,7 +64,7 @@ class PoweredOn(State):
         print("Exited PoweredOn")
 
 
-class Idle(PoweredOn):
+class Idle(PoweredOn, initial=True):
     async def make_coffee(type):
         return False
 

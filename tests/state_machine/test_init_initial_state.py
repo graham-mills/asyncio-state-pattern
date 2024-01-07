@@ -1,14 +1,6 @@
 import pytest
 
-from asyncio_state_pattern import State, initial_state, StateMachine
-
-
-class StateA(State):
-    pass
-
-
-class StateB(State):
-    pass
+from asyncio_state_pattern import State, StateMachine
 
 
 async def test_implicit_initial_state_class():
@@ -17,7 +9,8 @@ async def test_implicit_initial_state_class():
     state being explicitly specified as the initial state, the first state in
     the list is used as the initial state.
     """
-
+    class StateA(State): pass
+    class StateB(State): pass
     class UnitUnderTest(StateMachine):
         def __init__(self):
             super().__init__(states=[StateA, StateB])
@@ -27,58 +20,87 @@ async def test_implicit_initial_state_class():
     assert type(uut.state) == StateA
 
 
-async def test_explicit_initial_state_first():
+async def test_explicit_initial_state_class():
     """
-    When a StateMachine is initialized with a list of states and the first
-    state value is wrapped with the initial_state function, then that state is
-    used as the initial state.
+    When a StateMachine is initialized with a list of state classes and one of
+    the classes is declared with the `initial` arg set to True, then that state
+    is used as the initial state. 
     """
 
+    class StateA(State): pass
+    class StateB(State, initial=True): pass
     class UnitUnderTest(StateMachine):
         def __init__(self):
-            super().__init__(states=[initial_state(StateA), StateB])
+            super().__init__(states=[StateA, StateB])
 
     uut = UnitUnderTest()
     await uut.start()
-    assert type(uut.state) == StateA
+    assert type(uut.state) == StateB
 
-
-async def test_explicit_initial_state_last():
+async def test_multiple_initial_states():
     """
-    When a StateMachine is initialized with a list of states and the first
-    state value is wrapped with the initial_state function, then that state is
-    used as the initial state.
+    When a StateMachine is initialized with a list of non-nested states and more
+    than one state is declared as an initial state, then a ValueError is raised.
     """
 
+    class StateA(State, initial=True): pass
+    class StateB(State, initial=True): pass
     class UnitUnderTest(StateMachine):
         def __init__(self):
             super().__init__(
                 states=[
                     StateB,
-                    initial_state(StateA),
-                ]
-            )
-
-    uut = UnitUnderTest()
-    await uut.start()
-    assert type(uut.state) == StateA
-
-
-async def test_multiple_initial_states():
-    """
-    When a StateMachine is initialized with a list of states and more than one
-    state is wrapped with the initial_state function, then a ValueError is
-    raised.
-    """
-
-    class UnitUnderTest(StateMachine):
-        def __init__(self):
-            super().__init__(
-                states=[
-                    initial_state(StateB),
-                    initial_state(StateA),
+                    StateA,
                 ]
             )
 
     with pytest.raises(ValueError):
         UnitUnderTest()
+
+async def test_implicit_initial_nested_state():
+    """
+    When a StateMachine is initialized with a composite state as the initial
+    state, and that composite state has no sub state declared as the initial
+    state, then the first sub state is entered when the StateMachine is started.
+    """
+
+    class StateA(State, initial=True): pass
+    class StateB(StateA): pass
+    class StateC(StateA): pass
+    class UnitUnderTest(StateMachine):
+        def __init__(self):
+            super().__init__(
+                states=[
+                    StateA,
+                    StateB,
+                    StateC,
+                ]
+            )
+
+    uut = UnitUnderTest()
+    await uut.start()
+    assert type(uut.state) == StateB
+
+async def test_explicit_initial_nested_state():
+    """
+    When a StateMachine is initialized with a composite state as the initial
+    state, and that composite state has a sub state declared as the initial
+    state, then that sub state is entered when the StateMachine is started.
+    """
+
+    class StateA(State, initial=True): pass
+    class StateB(StateA): pass
+    class StateC(StateA, initial=True): pass
+    class UnitUnderTest(StateMachine):
+        def __init__(self):
+            super().__init__(
+                states=[
+                    StateA,
+                    StateB,
+                    StateC,
+                ]
+            )
+
+    uut = UnitUnderTest()
+    await uut.start()
+    assert type(uut.state) == StateC

@@ -1,6 +1,6 @@
 import pytest
 
-from asyncio_state_pattern import State, initial_state, StateMachine, on_entry, on_exit
+from asyncio_state_pattern import State, StateMachine, on_entry, on_exit
 
 entered_states = []
 exited_states = []
@@ -50,7 +50,7 @@ class StateC(StateA):
         exited_states.append(self.__class__)
 
 
-class StateD(StateB):
+class StateD(StateB, initial=True):
     @on_entry
     async def entry(self) -> None:
         global entered_states
@@ -83,7 +83,7 @@ async def uut() -> StateMachine:
                     StateA,
                     StateB,
                     StateC,
-                    initial_state(StateD),
+                    StateD,
                     StateE,
                 ]
             )

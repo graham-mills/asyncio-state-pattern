@@ -51,12 +51,27 @@ async def uut() -> StateMachine:
     return uut
 
 
-async def test_transition_from_a_to_b(uut: StateMachine):
+@pytest.fixture(autouse=True)
+async def reset_test_outputs(uut: StateMachine):
     global entered_states, exited_states
     entered_states = []
     exited_states = []
 
+
+async def test_basic_transitions(uut: StateMachine):
     await uut.transition_to(StateB)
     assert type(uut.state) == StateB
     assert exited_states == [StateA]
     assert entered_states == [StateB]
+
+    await uut.transition_to(StateA)
+    assert type(uut.state) == StateA
+    assert exited_states == [StateA, StateB]
+    assert entered_states == [StateB, StateA]
+
+
+async def test_transition_to_same_state(uut: StateMachine):
+    await uut.transition_to(StateA)
+    assert type(uut.state) == StateA
+    assert exited_states == []
+    assert entered_states == []

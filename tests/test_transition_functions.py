@@ -3,8 +3,8 @@ from asyncio_state_pattern.state_machine import (
     _get_transition_exit_states,
     _get_transition_entry_states,
     _diff_state_hierarchies,
-    _get_state_hierarchy,
 )
+from asyncio_state_pattern.state_tree import create_state_tree
 
 #   State
 #    / \
@@ -47,20 +47,7 @@ class StateG(StateE):
     pass
 
 
-def test_get_state_hierarchy():
-    """
-    Given a class that derives from the State base class, test that a list
-    is returned containing the given class and all ancestor classes that
-    also derive from the State base class, ordered by proximity to the State
-    base class.
-    """
-    assert _get_state_hierarchy(StateA) == [StateA]
-    assert _get_state_hierarchy(StateB) == [StateA, StateB]
-    assert _get_state_hierarchy(StateC) == [StateC]
-    assert _get_state_hierarchy(StateD) == [StateC, StateD]
-    assert _get_state_hierarchy(StateF) == [StateC, StateD, StateF]
-    assert _get_state_hierarchy(StateE) == [StateC, StateE]
-    assert _get_state_hierarchy(StateG) == [StateC, StateE, StateG]
+state_tree = create_state_tree([StateA, StateB, StateC, StateD, StateE, StateF, StateG])
 
 
 def test_get_transition_exit_states():
@@ -69,60 +56,75 @@ def test_get_transition_exit_states():
     containing all states that would be exited when transitioning between them,
     in the order of tree traversal.
     """
-
     # From StateA
-    assert _get_transition_exit_states(StateA, StateA) == []
-    assert _get_transition_exit_states(StateA, StateB) == []
-    assert _get_transition_exit_states(StateA, StateC) == [StateA]
-    assert _get_transition_exit_states(StateA, StateD) == [StateA]
-    assert _get_transition_exit_states(StateA, StateE) == [StateA]
-    assert _get_transition_exit_states(StateA, StateF) == [StateA]
-    assert _get_transition_exit_states(StateA, StateG) == [StateA]
+    assert _get_transition_exit_states(StateA, StateA, state_tree) == []
+    assert _get_transition_exit_states(StateA, StateB, state_tree) == []
+    assert _get_transition_exit_states(StateA, StateC, state_tree) == [StateA]
+    assert _get_transition_exit_states(StateA, StateD, state_tree) == [StateA]
+    assert _get_transition_exit_states(StateA, StateE, state_tree) == [StateA]
+    assert _get_transition_exit_states(StateA, StateF, state_tree) == [StateA]
+    assert _get_transition_exit_states(StateA, StateG, state_tree) == [StateA]
 
     # From StateB
-    assert _get_transition_exit_states(StateB, StateA) == [StateB]
-    assert _get_transition_exit_states(StateB, StateB) == []
-    assert _get_transition_exit_states(StateB, StateC) == [StateB, StateA]
-    assert _get_transition_exit_states(StateB, StateD) == [StateB, StateA]
-    assert _get_transition_exit_states(StateB, StateE) == [StateB, StateA]
-    assert _get_transition_exit_states(StateB, StateF) == [StateB, StateA]
-    assert _get_transition_exit_states(StateB, StateG) == [StateB, StateA]
+    assert _get_transition_exit_states(StateB, StateA, state_tree) == [StateB]
+    assert _get_transition_exit_states(StateB, StateB, state_tree) == []
+    assert _get_transition_exit_states(StateB, StateC, state_tree) == [StateB, StateA]
+    assert _get_transition_exit_states(StateB, StateD, state_tree) == [StateB, StateA]
+    assert _get_transition_exit_states(StateB, StateE, state_tree) == [StateB, StateA]
+    assert _get_transition_exit_states(StateB, StateF, state_tree) == [StateB, StateA]
+    assert _get_transition_exit_states(StateB, StateG, state_tree) == [StateB, StateA]
 
     # From StateC
-    assert _get_transition_exit_states(StateC, StateA) == [StateC]
-    assert _get_transition_exit_states(StateC, StateB) == [StateC]
-    assert _get_transition_exit_states(StateC, StateC) == []
-    assert _get_transition_exit_states(StateC, StateD) == []
-    assert _get_transition_exit_states(StateC, StateE) == []
-    assert _get_transition_exit_states(StateC, StateF) == []
-    assert _get_transition_exit_states(StateC, StateG) == []
+    assert _get_transition_exit_states(StateC, StateA, state_tree) == [StateC]
+    assert _get_transition_exit_states(StateC, StateB, state_tree) == [StateC]
+    assert _get_transition_exit_states(StateC, StateC, state_tree) == []
+    assert _get_transition_exit_states(StateC, StateD, state_tree) == []
+    assert _get_transition_exit_states(StateC, StateE, state_tree) == []
+    assert _get_transition_exit_states(StateC, StateF, state_tree) == []
+    assert _get_transition_exit_states(StateC, StateG, state_tree) == []
 
     # From StateD
-    assert _get_transition_exit_states(StateD, StateA) == [StateD, StateC]
-    assert _get_transition_exit_states(StateD, StateB) == [StateD, StateC]
-    assert _get_transition_exit_states(StateD, StateC) == [StateD]
-    assert _get_transition_exit_states(StateD, StateE) == [StateD]
-    assert _get_transition_exit_states(StateD, StateF) == []
-    assert _get_transition_exit_states(StateD, StateG) == [StateD]
+    assert _get_transition_exit_states(StateD, StateA, state_tree) == [StateD, StateC]
+    assert _get_transition_exit_states(StateD, StateB, state_tree) == [StateD, StateC]
+    assert _get_transition_exit_states(StateD, StateC, state_tree) == [StateD]
+    assert _get_transition_exit_states(StateD, StateE, state_tree) == [StateD]
+    assert _get_transition_exit_states(StateD, StateF, state_tree) == []
+    assert _get_transition_exit_states(StateD, StateG, state_tree) == [StateD]
 
     # From StateF
-    assert _get_transition_exit_states(StateF, StateA) == [StateF, StateD, StateC]
-    assert _get_transition_exit_states(StateF, StateB) == [StateF, StateD, StateC]
-    assert _get_transition_exit_states(StateF, StateC) == [StateF, StateD]
-    assert _get_transition_exit_states(StateF, StateD) == [StateF]
-    assert _get_transition_exit_states(StateF, StateE) == [StateF, StateD]
-    assert _get_transition_exit_states(StateF, StateF) == []
-    assert _get_transition_exit_states(StateF, StateG) == [StateF, StateD]
+    assert _get_transition_exit_states(StateF, StateA, state_tree) == [
+        StateF,
+        StateD,
+        StateC,
+    ]
+    assert _get_transition_exit_states(StateF, StateB, state_tree) == [
+        StateF,
+        StateD,
+        StateC,
+    ]
+    assert _get_transition_exit_states(StateF, StateC, state_tree) == [StateF, StateD]
+    assert _get_transition_exit_states(StateF, StateD, state_tree) == [StateF]
+    assert _get_transition_exit_states(StateF, StateE, state_tree) == [StateF, StateD]
+    assert _get_transition_exit_states(StateF, StateF, state_tree) == []
+    assert _get_transition_exit_states(StateF, StateG, state_tree) == [StateF, StateD]
 
     # From StateG
-    assert _get_transition_exit_states(StateG, StateA) == [StateG, StateE, StateC]
-    assert _get_transition_exit_states(StateG, StateB) == [StateG, StateE, StateC]
-    assert _get_transition_exit_states(StateG, StateC) == [StateG, StateE]
-    assert _get_transition_exit_states(StateG, StateD) == [StateG, StateE]
-    assert _get_transition_exit_states(StateG, StateE) == [StateG]
-    assert _get_transition_exit_states(StateG, StateF) == [StateG, StateE]
-    assert _get_transition_exit_states(StateG, StateG) == []
-    assert _get_transition_exit_states(StateG, StateG) == []
+    assert _get_transition_exit_states(StateG, StateA, state_tree) == [
+        StateG,
+        StateE,
+        StateC,
+    ]
+    assert _get_transition_exit_states(StateG, StateB, state_tree) == [
+        StateG,
+        StateE,
+        StateC,
+    ]
+    assert _get_transition_exit_states(StateG, StateC, state_tree) == [StateG, StateE]
+    assert _get_transition_exit_states(StateG, StateD, state_tree) == [StateG, StateE]
+    assert _get_transition_exit_states(StateG, StateE, state_tree) == [StateG]
+    assert _get_transition_exit_states(StateG, StateF, state_tree) == [StateG, StateE]
+    assert _get_transition_exit_states(StateG, StateG, state_tree) == []
+    assert _get_transition_exit_states(StateG, StateG, state_tree) == []
 
 
 def test_get_transition_entry_states():
@@ -132,66 +134,100 @@ def test_get_transition_entry_states():
     in the order of tree traversal.
     """
 
+    # From None (Initial transition)
+    assert _get_transition_entry_states(None, StateA, state_tree) == [StateA]
+    assert _get_transition_entry_states(None, StateB, state_tree) == [StateA, StateB]
+    assert _get_transition_entry_states(None, StateC, state_tree) == [StateC]
+    assert _get_transition_entry_states(None, StateD, state_tree) == [StateC, StateD]
+    assert _get_transition_entry_states(None, StateE, state_tree) == [StateC, StateE]
+    assert _get_transition_entry_states(None, StateF, state_tree) == [
+        StateC,
+        StateD,
+        StateF,
+    ]
+    assert _get_transition_entry_states(None, StateG, state_tree) == [
+        StateC,
+        StateE,
+        StateG,
+    ]
+
     # From StateA
-    assert _get_transition_entry_states(StateA, StateA) == []
-    assert _get_transition_entry_states(StateA, StateB) == [StateB]
-    assert _get_transition_entry_states(StateA, StateC) == [StateC]
-    assert _get_transition_entry_states(StateA, StateD) == [StateC, StateD]
-    assert _get_transition_entry_states(StateA, StateE) == [StateC, StateE]
-    assert _get_transition_entry_states(StateA, StateF) == [StateC, StateD, StateF]
+    assert _get_transition_entry_states(StateA, StateA, state_tree) == []
+    assert _get_transition_entry_states(StateA, StateB, state_tree) == [StateB]
+    assert _get_transition_entry_states(StateA, StateC, state_tree) == [StateC]
+    assert _get_transition_entry_states(StateA, StateD, state_tree) == [StateC, StateD]
+    assert _get_transition_entry_states(StateA, StateE, state_tree) == [StateC, StateE]
+    assert _get_transition_entry_states(StateA, StateF, state_tree) == [
+        StateC,
+        StateD,
+        StateF,
+    ]
+    assert _get_transition_entry_states(StateA, StateG, state_tree) == [
+        StateC,
+        StateE,
+        StateG,
+    ]
 
     # From StateB
-    assert _get_transition_entry_states(StateB, StateA) == []
-    assert _get_transition_entry_states(StateB, StateC) == [StateC]
-    assert _get_transition_entry_states(StateB, StateD) == [StateC, StateD]
-    assert _get_transition_entry_states(StateB, StateE) == [StateC, StateE]
-    assert _get_transition_entry_states(StateB, StateF) == [StateC, StateD, StateF]
-    assert _get_transition_entry_states(StateB, StateG) == [StateC, StateE, StateG]
+    assert _get_transition_entry_states(StateB, StateA, state_tree) == []
+    assert _get_transition_entry_states(StateB, StateC, state_tree) == [StateC]
+    assert _get_transition_entry_states(StateB, StateD, state_tree) == [StateC, StateD]
+    assert _get_transition_entry_states(StateB, StateE, state_tree) == [StateC, StateE]
+    assert _get_transition_entry_states(StateB, StateF, state_tree) == [
+        StateC,
+        StateD,
+        StateF,
+    ]
+    assert _get_transition_entry_states(StateB, StateG, state_tree) == [
+        StateC,
+        StateE,
+        StateG,
+    ]
 
     # From StateC
-    assert _get_transition_entry_states(StateC, StateA) == [StateA]
-    assert _get_transition_entry_states(StateC, StateB) == [StateA, StateB]
-    assert _get_transition_entry_states(StateC, StateC) == []
-    assert _get_transition_entry_states(StateC, StateD) == [StateD]
-    assert _get_transition_entry_states(StateC, StateE) == [StateE]
-    assert _get_transition_entry_states(StateC, StateF) == [StateD, StateF]
-    assert _get_transition_entry_states(StateC, StateG) == [StateE, StateG]
+    assert _get_transition_entry_states(StateC, StateA, state_tree) == [StateA]
+    assert _get_transition_entry_states(StateC, StateB, state_tree) == [StateA, StateB]
+    assert _get_transition_entry_states(StateC, StateC, state_tree) == []
+    assert _get_transition_entry_states(StateC, StateD, state_tree) == [StateD]
+    assert _get_transition_entry_states(StateC, StateE, state_tree) == [StateE]
+    assert _get_transition_entry_states(StateC, StateF, state_tree) == [StateD, StateF]
+    assert _get_transition_entry_states(StateC, StateG, state_tree) == [StateE, StateG]
 
     # From StateD
-    assert _get_transition_entry_states(StateD, StateA) == [StateA]
-    assert _get_transition_entry_states(StateD, StateB) == [StateA, StateB]
-    assert _get_transition_entry_states(StateD, StateC) == []
-    assert _get_transition_entry_states(StateD, StateD) == []
-    assert _get_transition_entry_states(StateD, StateE) == [StateE]
-    assert _get_transition_entry_states(StateD, StateF) == [StateF]
-    assert _get_transition_entry_states(StateD, StateG) == [StateE, StateG]
+    assert _get_transition_entry_states(StateD, StateA, state_tree) == [StateA]
+    assert _get_transition_entry_states(StateD, StateB, state_tree) == [StateA, StateB]
+    assert _get_transition_entry_states(StateD, StateC, state_tree) == []
+    assert _get_transition_entry_states(StateD, StateD, state_tree) == []
+    assert _get_transition_entry_states(StateD, StateE, state_tree) == [StateE]
+    assert _get_transition_entry_states(StateD, StateF, state_tree) == [StateF]
+    assert _get_transition_entry_states(StateD, StateG, state_tree) == [StateE, StateG]
 
     # From StateE
-    assert _get_transition_entry_states(StateE, StateA) == [StateA]
-    assert _get_transition_entry_states(StateE, StateB) == [StateA, StateB]
-    assert _get_transition_entry_states(StateE, StateC) == []
-    assert _get_transition_entry_states(StateE, StateD) == [StateD]
-    assert _get_transition_entry_states(StateE, StateE) == []
-    assert _get_transition_entry_states(StateE, StateF) == [StateD, StateF]
-    assert _get_transition_entry_states(StateE, StateG) == [StateG]
+    assert _get_transition_entry_states(StateE, StateA, state_tree) == [StateA]
+    assert _get_transition_entry_states(StateE, StateB, state_tree) == [StateA, StateB]
+    assert _get_transition_entry_states(StateE, StateC, state_tree) == []
+    assert _get_transition_entry_states(StateE, StateD, state_tree) == [StateD]
+    assert _get_transition_entry_states(StateE, StateE, state_tree) == []
+    assert _get_transition_entry_states(StateE, StateF, state_tree) == [StateD, StateF]
+    assert _get_transition_entry_states(StateE, StateG, state_tree) == [StateG]
 
     # From StateF
-    assert _get_transition_entry_states(StateF, StateA) == [StateA]
-    assert _get_transition_entry_states(StateF, StateB) == [StateA, StateB]
-    assert _get_transition_entry_states(StateF, StateC) == []
-    assert _get_transition_entry_states(StateF, StateD) == []
-    assert _get_transition_entry_states(StateF, StateE) == [StateE]
-    assert _get_transition_entry_states(StateF, StateF) == []
-    assert _get_transition_entry_states(StateF, StateG) == [StateE, StateG]
+    assert _get_transition_entry_states(StateF, StateA, state_tree) == [StateA]
+    assert _get_transition_entry_states(StateF, StateB, state_tree) == [StateA, StateB]
+    assert _get_transition_entry_states(StateF, StateC, state_tree) == []
+    assert _get_transition_entry_states(StateF, StateD, state_tree) == []
+    assert _get_transition_entry_states(StateF, StateE, state_tree) == [StateE]
+    assert _get_transition_entry_states(StateF, StateF, state_tree) == []
+    assert _get_transition_entry_states(StateF, StateG, state_tree) == [StateE, StateG]
 
     # From StateG
-    assert _get_transition_entry_states(StateG, StateA) == [StateA]
-    assert _get_transition_entry_states(StateG, StateB) == [StateA, StateB]
-    assert _get_transition_entry_states(StateG, StateC) == []
-    assert _get_transition_entry_states(StateG, StateD) == [StateD]
-    assert _get_transition_entry_states(StateG, StateE) == []
-    assert _get_transition_entry_states(StateG, StateF) == [StateD, StateF]
-    assert _get_transition_entry_states(StateG, StateG) == []
+    assert _get_transition_entry_states(StateG, StateA, state_tree) == [StateA]
+    assert _get_transition_entry_states(StateG, StateB, state_tree) == [StateA, StateB]
+    assert _get_transition_entry_states(StateG, StateC, state_tree) == []
+    assert _get_transition_entry_states(StateG, StateD, state_tree) == [StateD]
+    assert _get_transition_entry_states(StateG, StateE, state_tree) == []
+    assert _get_transition_entry_states(StateG, StateF, state_tree) == [StateD, StateF]
+    assert _get_transition_entry_states(StateG, StateG, state_tree) == []
 
 
 def test_diff_state_hierarchies():
@@ -202,10 +238,14 @@ def test_diff_state_hierarchies():
     base class.
     """
 
-    assert _diff_state_hierarchies(StateB, StateD) == [StateA, StateB]
-    assert _diff_state_hierarchies(StateA, StateB) == []
-    assert _diff_state_hierarchies(StateB, StateA) == [StateB]
-    assert _diff_state_hierarchies(StateF, StateB) == [StateC, StateD, StateF]
-    assert _diff_state_hierarchies(StateF, StateE) == [StateD, StateF]
-    assert _diff_state_hierarchies(StateF, StateG) == [StateD, StateF]
-    assert _diff_state_hierarchies(StateG, StateF) == [StateE, StateG]
+    assert _diff_state_hierarchies(StateB, StateD, state_tree) == [StateA, StateB]
+    assert _diff_state_hierarchies(StateA, StateB, state_tree) == []
+    assert _diff_state_hierarchies(StateB, StateA, state_tree) == [StateB]
+    assert _diff_state_hierarchies(StateF, StateB, state_tree) == [
+        StateC,
+        StateD,
+        StateF,
+    ]
+    assert _diff_state_hierarchies(StateF, StateE, state_tree) == [StateD, StateF]
+    assert _diff_state_hierarchies(StateF, StateG, state_tree) == [StateD, StateF]
+    assert _diff_state_hierarchies(StateG, StateF, state_tree) == [StateE, StateG]

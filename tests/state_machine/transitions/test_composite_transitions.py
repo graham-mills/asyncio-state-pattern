@@ -26,7 +26,7 @@ class StateA(State):
         exited_states.append(self.__class__)
 
 
-class StateB(StateA):
+class StateB(StateA, initial=True):
     @on_entry
     async def entry(self) -> None:
         global entered_states
@@ -101,8 +101,22 @@ async def reset_test_outputs(uut: StateMachine):
     exited_states = []
 
 
-async def test_transition_from_d_to_e(uut: StateMachine):
+async def test_transition_from_simple_to_simple(uut: StateMachine):
     await uut.transition_to(StateE)
     assert type(uut.state) == StateE
     assert exited_states == [StateD, StateB]
     assert entered_states == [StateC, StateE]
+
+
+async def test_transition_from_simple_to_composite(uut: StateMachine):
+    await uut.transition_to(StateC)
+    assert type(uut.state) == StateE
+    assert exited_states == [StateD, StateB]
+    assert entered_states == [StateC, StateE]
+
+
+async def test_transition_to_same_ancestor_state(uut: StateMachine):
+    await uut.transition_to(StateA)
+    assert type(uut.state) == StateD
+    assert exited_states == []
+    assert entered_states == []

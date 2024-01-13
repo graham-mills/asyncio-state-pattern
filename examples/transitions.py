@@ -11,9 +11,7 @@ from asyncio_state_pattern import (
 
 class CoffeeMaker(StateMachine):
     def __init__(self):
-        super().__init__(
-            states=[PoweredOff, PoweredOn, Idle, DispensingCoffee]
-        )
+        super().__init__(states=[PoweredOff, PoweredOn, Idle, DispensingCoffee])
 
     async def make_coffee(self, type):
         return await self.state.make_coffee()
@@ -45,13 +43,7 @@ class PoweredOff(State, initial=True):
 
     @on_event("power_on")
     async def on_power_on(self):
-        print("two")
-
         await self.context.transition_to(PoweredOn)
-
-    @on_event("power_on")
-    async def on_power_on2(self):
-        print("two")
 
 
 class PoweredOn(State):
@@ -107,13 +99,11 @@ async def main():
     await cm.run()
     await cm.queue_event("power_on")
 
-    await asyncio.sleep(2)
+    await asyncio.sleep(1)
+    await cm.transition_to(DispensingCoffee)
+    await asyncio.sleep(1)
+    await cm.transition_to(PoweredOff)
     await cm.stop()
-
-    # await cm.start()
-    # await cm.transition_to(Idle)
-    # await cm.transition_to(DispensingCoffee)
-    # await cm.transition_to(PoweredOff)
 
 
 asyncio.run(main())

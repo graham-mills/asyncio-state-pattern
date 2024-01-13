@@ -22,14 +22,18 @@ async def test_init_states_from_classes():
     uut = UnitUnderTest()
     await uut.start()
     assert type(uut.state) == StateA
+    assert uut.state.name == StateA.__name__
     await uut.transition_to(StateB)
     assert type(uut.state) == StateB
+    assert uut.state.name == StateB.__name__
 
 
 async def test_init_states_from_instances():
     """
     When a StateMachine is initialized with a list of state *instances*, then
-    those instances can be used to transition to those states.
+    the classes of those instances can be used to transition to those states,
+    and the entered states are identical to the state instances used for
+    initialization.
     """
     state_a = StateA()
     state_b = StateB()
@@ -41,14 +45,14 @@ async def test_init_states_from_instances():
     uut = UnitUnderTest()
     await uut.start()
     assert uut.state is state_a
-    await uut.transition_to(state_b)
+    await uut.transition_to(StateB)
     assert uut.state is state_b
 
 
 async def test_init_states_from_classes_and_instances():
     """
-    When a StateMachine is initialized with a list of state instances and
-    classes, then those instances and classes can be used to transition to.
+    When a StateMachine is initialized with a mixed list of state instances and
+    classes, then their classes can be used to transition to those states.
     """
     state_b = StateB()
 
@@ -59,5 +63,5 @@ async def test_init_states_from_classes_and_instances():
     uut = UnitUnderTest()
     await uut.start()
     assert type(uut.state) == StateA
-    await uut.transition_to(state_b)
+    await uut.transition_to(StateB)
     assert uut.state is state_b

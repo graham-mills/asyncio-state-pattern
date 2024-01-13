@@ -1,8 +1,13 @@
 from logging import Logger
-from typing import Generic, TypeVar
+from typing import Generic, TypeVar, Optional
 
-from .logger import logger
-from .constants import entry_action_attr, exit_action_attr, event_action_attr, initial_state_attr
+from .logger import logger as asp_logger
+from .constants import (
+    entry_action_attr,
+    exit_action_attr,
+    event_action_attr,
+    initial_state_attr,
+)
 
 T = TypeVar("T")
 
@@ -12,9 +17,9 @@ class State(Generic[T]):
     Base class for a state.
     """
 
-    def __init__(self, logger: Logger = logger) -> None:
-        self._logger = logger
-        self._context: T | None = None
+    def __init__(self, logger: Optional[Logger] = None) -> None:
+        self._logger = logger or asp_logger
+        self._context: Optional[T] = None
         self._entry_actions = [
             item
             for item in self.__class__.__dict__.values()
@@ -37,10 +42,13 @@ class State(Generic[T]):
 
     def __init_subclass__(cls, initial: bool = False) -> None:
         if initial:
-            setattr(cls, initial_state_attr, True)
+            if not hasattr(cls, initial_state_attr):
+                setattr(cls, initial_state_attr, [])
+            getattr(cls, initial_state_attr).append(cls.__name__)
 
     @property
     def context(self) -> T:
+        """The state's StateMachine context."""
         return self._context
 
     @context.setter
@@ -49,6 +57,7 @@ class State(Generic[T]):
 
     @property
     def name(self) -> str:
+        """The state's name."""
         return self.__class__.__name__
 
     async def enter(self) -> None:

@@ -7,8 +7,19 @@ class StateA(State):
     pass
 
 
-class StateB(State):
-    pass
+async def test_start():
+    """
+    Given a StateMachine that is not started, when it is requested to be
+    started, then the initial state is entered.
+    """
+
+    class UnitUnderTest(StateMachine):
+        def __init__(self):
+            super().__init__(states=[StateA])
+
+    uut = UnitUnderTest()
+    await uut.start()
+    assert type(uut.state) is StateA
 
 
 async def test_start_when_already_started():
@@ -19,7 +30,7 @@ async def test_start_when_already_started():
 
     class UnitUnderTest(StateMachine):
         def __init__(self):
-            super().__init__(states=[StateA, StateB])
+            super().__init__(states=[StateA])
 
     uut = UnitUnderTest()
     await uut.start()

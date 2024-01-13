@@ -1,5 +1,5 @@
-from typing import Type, TypeAlias
+from typing import Type, TypeAlias, Union
 
 from .state import State
 
-StateInstanceOrClass: TypeAlias = State | Type[State]
+StateInstanceOrClass: TypeAlias = Union[State, Type[State]]

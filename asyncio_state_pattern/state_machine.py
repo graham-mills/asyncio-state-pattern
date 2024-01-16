@@ -100,6 +100,8 @@ class StateMachine:
             raise StateMachineError(
                 f"{log_prefix(self)} Method cannot be used in conjunction with run"
             )
+        if not self._state:
+            await self.start()
         try:
             event = await self._event_queue.get_nowait()
             await self._state.process_event(event)
